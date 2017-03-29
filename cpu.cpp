@@ -1,8 +1,10 @@
 #include "cpu.h"
 
-CPU::CPU(byte * & memory): memory(memory)
+CPU::CPU(byte & main_memory)
 {
   //V0 = V1 = V2 = V3 = V4 = V5 = V6 = V7 = V8 = V9 = VA = VB = VC = VD = VE = VF = 0;
+
+  memory = &main_memory;
   
   srand(time(NULL));
 
@@ -10,6 +12,10 @@ CPU::CPU(byte * & memory): memory(memory)
 
   PC = 0x200;
 
+}
+
+CPU::~CPU()
+{
 }
 
 void CPU::step()
@@ -131,12 +137,12 @@ uint16_t CPU::bytes_to_word(byte left, byte right)
 
 uint16_t CPU::pop()
 {
-  return stack[SP--];
+  return stack[--SP];
 }
 
 void CPU::push(uint16_t old_PC)
 {
-  stack[++SP] = old_PC;
+  stack[SP++] = old_PC;
 
   return;
 }
@@ -152,8 +158,7 @@ void CPU::op_00E0()
 }
 void CPU::op_00EE()
 {
-  PC = stack[SP];
-  --SP;
+  PC = pop();
 }
 void CPU::op_1nnn()
 {
@@ -161,8 +166,15 @@ void CPU::op_1nnn()
 }
 void CPU::op_2nnn()
 {
+  PC += 2;
   push(PC);
-  PC = bytes_to_word(*(memory + PC), *(memory + PC + 1)) << 4 >> 4;
+
+  byte left = *(memory + PC) << 4;
+  left >>= 4;
+
+
+  PC = left << 8| (byte) *(memory + PC + 1) << 4 >> 4;
+ // PC = bytes_to_word(*(memory + PC), *(memory + PC + 1)) << 4 >> 4;
 }
 void CPU::op_3xkk()
 {
@@ -181,7 +193,10 @@ void CPU::op_5xy0()
 }
 void CPU::op_6xkk()
 {
-  V[*(memory + PC) << 4 >> 4] = *(memory + PC + 1);
+  byte left = *(memory + PC) << 4;
+  left >>= 4;
+
+  V[left] = *(memory + PC + 1);
   PC += 2;
 }
 void CPU::op_7xkk()
@@ -283,7 +298,11 @@ void CPU::op_9xy0()
 }
 void CPU::op_Annn()
 {
-  I = *(memory + PC) << 8 | *(memory + PC + 1) << 4 >> 4;
+  byte left = *(memory + PC) << 4;
+  left >>= 4;
+
+
+  I = left << 8| (byte) *(memory + PC + 1) << 4 >> 4;
   PC += 2;
 
 }
