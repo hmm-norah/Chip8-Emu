@@ -4,8 +4,11 @@
 class System
 {
   public:
-    System();
+    System(char * file);
     ~System();
+
+    void run();
+    void initialize(char * file);
 
   private:
     CPU cpu;

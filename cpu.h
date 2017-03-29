@@ -7,7 +7,7 @@
 class CPU
 {
   public:
-    CPU(byte *& memory);
+    CPU(byte & memory);
     ~CPU();
 
     void step();
