@@ -336,37 +336,74 @@ void CPU::op_Cxkk()
 }
 void CPU::op_Dxyn()
 {
+  //TODO GFX
 }
 void CPU::op_Ex9E()
 {
+  //TODO INPUT
 }
 void CPU::op_ExA1()
 {
+  //TODO INPUT
 }
 void CPU::op_Fx07()
 {
+  V[*(memory + PC) & 0x0F] = DELAY;
+  PC += 2;
 }
 void CPU::op_Fx0A()
 {
+  //TODO INPUT
 }
 void CPU::op_Fx15()
 {
+  DELAY = V[*(memory + PC) & 0x0F];
+  PC += 2;
 }
 void CPU::op_Fx18()
 {
+  TIMER = V[*(memory + PC) & 0x0F];
+  PC += 2;
 }
 void CPU::op_Fx1E()
 {
+  I += V[*(memory + PC) & 0x0F];
+  PC += 2;
 }
 void CPU::op_Fx29()
 {
+  //TODO GFX
 }
 void CPU::op_Fx33()
 {
+  //TODO Refresh on binary-coded decimal
 }
 void CPU::op_Fx55()
 {
+  int limit = 1 + *(memory + PC) & 0x0F;
+
+  for(int i = 0; i < limit; ++i)
+  {
+    memory[I + i] = *(V + i);
+  }
+  PC += 2;
+
+  /*
+  byte * offset = &*(memory + I);
+
+  for(int i = 0; i < limit; ++i)
+  {
+    *(offset + i) = *(V + i);
+  }
+  */
 }
 void CPU::op_Fx65()
 {
+  int limit = 1 + *(memory + PC) & 0x0F;
+
+  for(int i = 0; i < limit; ++i)
+  {
+    *(V + i) = memory[I + i];
+  }
+   PC += 2;
 }
