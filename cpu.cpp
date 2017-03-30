@@ -23,7 +23,7 @@ void CPU::step()
   //uint16_t op = *(memory + PC) << 8 | *(memory + PC + 1);
 
   //printf("0x%02X%02X", memory[PC], memory[PC + 1]);
-  cout << "0x" << hex << (int) memory[PC] << (int) memory[PC + 1] << endl;
+  display_state();
   //*(memory + PC) >> 4 << 4
   
   switch(*(memory + PC) & 0xF0)
@@ -136,9 +136,20 @@ void CPU::ops_F()
   }
 }
 
-uint16_t CPU::bytes_to_word(byte left, byte right)
+void CPU::display_state()
 {
-  return (uint16_t) left << 8 | right;
+  cout << "INSTRUCTION: 0x" << hex << (int) memory[PC] << (int) memory[PC + 1] << "\n" << endl;
+  for(int i = 0; i < 16; ++i)
+    printf("V%X: %02X\n", i, V[i]);
+
+  printf("I: %04X\nPC: %04X\nDELAY: %04X\nTIMER: %04X\n\n", I, PC, DELAY, TIMER);
+
+  printf("Stack contents: \n");
+
+  for(int i = 0; i < 16; ++i)
+    printf("%02X: %04X\n", i, stack[i]);
+
+  printf("\n");
 }
 
 uint16_t CPU::pop()

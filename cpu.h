@@ -17,9 +17,9 @@ class CPU
     //byte V0, V1, V2, V3, V4, V5, V6, V7, V8, V9, VA, VB, VC, VD, VE, VF, 
     byte V[16], SP;
 
-    uint16_t bytes_to_word(byte left, byte right);
     uint16_t pop();
     void push(uint16_t old_PC);
+    void display_state();
 
     void ops_0();   void ops_8();   void ops_E();   void ops_F();
 
