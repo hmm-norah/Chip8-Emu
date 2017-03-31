@@ -1,4 +1,5 @@
 #include "includes.h"
+#include "gfx.h"
 #include <time.h>
 #include <stdlib.h>
 
@@ -37,6 +38,7 @@ class CPU
 
     uint16_t stack[16];
 
+    GFX gfx;
     byte * memory;
   
 };

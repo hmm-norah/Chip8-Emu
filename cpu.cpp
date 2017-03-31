@@ -1,6 +1,6 @@
 #include "cpu.h"
 
-CPU::CPU(byte & main_memory)
+CPU::CPU(byte & main_memory): gfx(main_memory)
 {
   //V0 = V1 = V2 = V3 = V4 = V5 = V6 = V7 = V8 = V9 = VA = VB = VC = VD = VE = VF = 0;
 
@@ -11,6 +11,7 @@ CPU::CPU(byte & main_memory)
   SP = I = 0;
 
   PC = 0x200;
+  gfx.clear();
 
 }
 
@@ -20,7 +21,7 @@ CPU::~CPU()
 
 void CPU::step()
 {
-  display_state();
+//  display_state();
   switch(*(memory + PC) & 0xF0)
   {
     case(0x00): ops_0();
@@ -134,7 +135,6 @@ void CPU::ops_F()
 void CPU::display_state()
 {
   printf("INSTRUCTION: 0x%02X%02X\n", memory[PC], memory[PC + 1]);
-  /*
   for(int i = 0; i < 16; ++i)
     printf("V%X: %02X\n", i, V[i]);
 
@@ -146,7 +146,6 @@ void CPU::display_state()
     printf("%02X: %04X\n", i, stack[i]);
 
   printf("\n");
-    */
 }
 
 uint16_t CPU::pop()
@@ -168,7 +167,7 @@ void CPU::op_0nnn()
 }
 void CPU::op_00E0()
 {
-  //TODO GFX
+  gfx.clear();
 }
 void CPU::op_00EE()
 {
@@ -338,6 +337,41 @@ void CPU::op_Cxkk()
 void CPU::op_Dxyn()
 {
   //TODO GFX
+
+  /*
+		Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
+
+		The interpreter reads n bytes from memory, starting at the address stored in I. These bytes are
+		then displayed as sprites on screen at coordinates (Vx, Vy). Sprites are XORed onto the existing 
+		screen. If this causes any pixels to be erased, VF is set to 1, otherwise it is set to 0. If the 
+		sprite is positioned so part of it is outside the coordinates of the display, it wraps around to 
+		the opposite side of the screen. See instruction 8xy3 for more information on XOR, and section 2.4,
+		Display, for more information on the Chip-8 screen and sprites.
+	*/ 
+  
+  byte x_coord = V[memory[PC] & 0x0F];
+  byte y_coord = V[memory[(PC + 1)] & 0xF0];
+
+  byte nth = memory[(PC + 1) & 0x0F];
+
+  byte pixel;
+
+  int collision;
+
+	for(int i = 0; i < nth; ++i)
+  {
+    pixel = memory[I + i];
+    collision = gfx.put(x_coord + (WIDTH * i), y_coord + (HEIGHT * i), pixel);
+
+    if(collision)
+      V[0x0f] = collision;
+  }
+
+
+  gfx.draw();
+
+
+  
   PC += 2;
 }
 void CPU::op_Ex9E()
