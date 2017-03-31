@@ -20,12 +20,7 @@ CPU::~CPU()
 
 void CPU::step()
 {
-  //uint16_t op = *(memory + PC) << 8 | *(memory + PC + 1);
-
-  //printf("0x%02X%02X", memory[PC], memory[PC + 1]);
   display_state();
-  //*(memory + PC) >> 4 << 4
-  
   switch(*(memory + PC) & 0xF0)
   {
     case(0x00): ops_0();
@@ -138,7 +133,8 @@ void CPU::ops_F()
 
 void CPU::display_state()
 {
-  cout << "INSTRUCTION: 0x" << hex << (int) memory[PC] << (int) memory[PC + 1] << "\n" << endl;
+  printf("INSTRUCTION: 0x%02X%02X\n", memory[PC], memory[PC + 1]);
+  /*
   for(int i = 0; i < 16; ++i)
     printf("V%X: %02X\n", i, V[i]);
 
@@ -150,6 +146,7 @@ void CPU::display_state()
     printf("%02X: %04X\n", i, stack[i]);
 
   printf("\n");
+    */
 }
 
 uint16_t CPU::pop()
@@ -186,65 +183,66 @@ void CPU::op_1nnn()
 }
 void CPU::op_2nnn()
 {
-  PC += 2;
-  push(PC);
-
-  byte left = *(memory + PC) << 4;
-  left >>= 4;
+  push(PC + 2);
 
 
-  PC = left << 8| (byte) *(memory + PC + 1);
+
+  PC = *(memory + PC) << 8| (byte) *(memory + PC + 1);
   PC &= 0x0FFF;
  // PC = bytes_to_word(*(memory + PC), *(memory + PC + 1)) & 0xF0;
 }
 void CPU::op_3xkk()
 {
   if(V[*(memory + PC) & 0x0F] == *(memory + PC + 1))
+    PC += 4;
+  else
     PC += 2;
 }
 void CPU::op_4xkk()
 {
   if(V[*(memory + PC) & 0x0F] != *(memory + PC + 1))
+    PC += 4;
+  else
     PC += 2;
 }
 void CPU::op_5xy0()
 {
-  if(V[*(memory + PC) & 0x0F] == V[*(memory + PC + 1) & 0xF0])
+  if(V[*(memory + PC) & 0x0F] == V[*(memory + PC + 1) & 0x00])
     PC += 2;
 }
 void CPU::op_6xkk()
 {
-  V[*(memory + PC) & 0xF0] = *(memory + PC + 1);
+  V[*(memory + PC) & 0x0F] = *(memory + PC + 1);
   PC += 2;
 }
 void CPU::op_7xkk()
 {
-  V[*(memory + PC) & 0xF0] += *(memory + PC + 1);
+  V[*(memory + PC) & 0x0F] += *(memory + PC + 1);
   PC += 2;
 }
 void CPU::op_8xy0()
 {
-  V[*(memory + PC) & 0xF0] = V[*(memory + PC + 1) >> 4 << 4];
+  V[*(memory + PC) & 0x0F] = V[*(memory + PC + 1) & 0x0F];
   PC += 2;
 }
 void CPU::op_8xy1()
 {
-  V[*(memory + PC) & 0xF0] |= V[*(memory + PC + 1) >> 4 << 4];
+  V[*(memory + PC) & 0x0F] |= V[*(memory + PC + 1) & 0x0F];
   PC += 2;
 }
 void CPU::op_8xy2()
 {
-  V[*(memory + PC) & 0xF0] &= V[*(memory + PC + 1) >> 4 << 4];
+  V[*(memory + PC) & 0x0F] &= V[*(memory + PC + 1) & 0x0F];
   PC += 2;
 }
 void CPU::op_8xy3()
 {
-  V[*(memory + PC) & 0xF0] ^= V[*(memory + PC + 1) >> 4 << 4];
+  V[*(memory + PC) & 0x0F] ^= V[*(memory + PC + 1) & 0x0F];
   PC += 2;
 }
 void CPU::op_8xy4()
 {
-  if( (int) (V[*(memory + PC) & 0xF0 ] ) + (int) (V[*(memory + PC + 1) >> 4 << 4 ] ) > 0xFF)
+  if( (V[*(memory + PC) & 0x0F ] ) + (V[(*(memory + PC + 1) & 0x0F)])  > 0xFF)
     V[0x0F] = 0x01;
   else
     V[0x0F] = 0x00;
@@ -252,8 +250,9 @@ void CPU::op_8xy4()
 }
 void CPU::op_8xy5()
 {
-  byte * x = &V[*(memory + PC) & 0xF0];
-  byte * y = &V[*(memory + PC + 1) >> 4 << 4];
+  byte * x = &V[*(memory + PC) & 0x0F];
+
+  byte * y = &V[*(memory + PC + 1) & 0x0F];
 
   (x > y) ? V[0x0F] = 1 : V[0x0F] = 0;
 
@@ -263,7 +262,7 @@ void CPU::op_8xy5()
 }
 void CPU::op_8xy6()
 {
-  byte lsb = V[*(memory + PC) & 0xF0];
+  byte lsb = V[*(memory + PC) & 0x0F];
   byte * x = &V[*(memory + PC) & 0xF0];
 
   lsb &= 0xFF - lsb + 0x01; 
@@ -279,7 +278,8 @@ void CPU::op_8xy6()
 }
 void CPU::op_8xy7()
 {
-  byte * x = &V[*(memory + PC) & 0xF0];
+  byte * x = &V[*(memory + PC) & 0x0F];
+
   byte * y = &V[*(memory + PC + 1) >> 4 << 4];
 
   (y > x) ? V[0x0F] = 1 : V[0x0F] = 0;
@@ -290,8 +290,8 @@ void CPU::op_8xy7()
 }
 void CPU::op_8xyE()
 {
-  byte x_copy = V[*(memory + PC) & 0xF0];
-  byte * x = &V[*(memory + PC) & 0xF0];
+  byte x_copy = V[*(memory + PC) & 0x0F];
+  byte * x = &V[*(memory + PC) & 0x0F];
 
   unsigned msb = 0;
 
@@ -310,7 +310,7 @@ void CPU::op_8xyE()
 }
 void CPU::op_9xy0()
 {
-  if(V[*(memory + PC) & 0xF0] != V[*(memory + PC + 1) >> 4 << 4])
+  if(V[*(memory + PC) & 0x0F] != V[*(memory + PC + 1) >> 4 << 4])
     PC += 2;
 
 }
@@ -318,33 +318,37 @@ void CPU::op_Annn()
 {
 
   I = *(memory + PC) << 8 | (byte) *(memory + PC + 1);
-  I &= 0xF0;
+  I &= 0x0FFF;
 
   PC += 2;
 
 }
 void CPU::op_Bnnn()
 {
-  PC = ((*(memory + PC) << 8 | (*(memory + PC + 1))) & 0xF0) + V[0];
+  PC = ((*(memory + PC) << 8 | (*(memory + PC + 1))) & 0xF0 >> 4) + V[0];
 }
 void CPU::op_Cxkk()
 {
   uint8_t r = rand() % 256;
 
-  V[*(memory + PC) & 0xF0] = r & *(memory + PC + 1);
+  V[*(memory + PC) & 0x0F] = r & *(memory + PC + 1);
 
+  PC += 2;
 }
 void CPU::op_Dxyn()
 {
   //TODO GFX
+  PC += 2;
 }
 void CPU::op_Ex9E()
 {
   //TODO INPUT
+  PC += 2;
 }
 void CPU::op_ExA1()
 {
   //TODO INPUT
+  PC += 2;
 }
 void CPU::op_Fx07()
 {
@@ -354,6 +358,7 @@ void CPU::op_Fx07()
 void CPU::op_Fx0A()
 {
   //TODO INPUT
+  PC += 2;
 }
 void CPU::op_Fx15()
 {
@@ -373,14 +378,17 @@ void CPU::op_Fx1E()
 void CPU::op_Fx29()
 {
   //TODO GFX
+  PC += 2;
 }
 void CPU::op_Fx33()
 {
   //TODO Refresh on binary-coded decimal
+  int i;
+  cin >> i;
 }
 void CPU::op_Fx55()
 {
-  int limit = 1 + *(memory + PC) & 0x0F;
+  int limit = (*(memory + PC) & 0x0F) + 1;
 
   for(int i = 0; i < limit; ++i)
   {
@@ -399,7 +407,7 @@ void CPU::op_Fx55()
 }
 void CPU::op_Fx65()
 {
-  int limit = 1 + *(memory + PC) & 0x0F;
+  int limit = (*(memory + PC) & 0x0F) + 1;
 
   for(int i = 0; i < limit; ++i)
   {
