@@ -14,7 +14,7 @@ int main (int argc, char ** argv)
     return 1;
   }
   //Create window
-  window = SDL_CreateWindow( "SDL Tutorial", 900, 900, WIDTH * 2, HEIGHT * 2, SDL_WINDOW_SHOWN );
+  window = SDL_CreateWindow( "Chip 8 Emulator", 900, 900, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
   if( window == NULL )
   {
       printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
@@ -26,7 +26,7 @@ int main (int argc, char ** argv)
   SDL_Texture * tex = SDL_CreateTexture(renderer, 
       SDL_PIXELFORMAT_ARGB8888, 
       SDL_TEXTUREACCESS_STREAMING, 
-      64, 32);
+      WIDTH, HEIGHT);
 
 
   char test_rom[] = "tetris.ch8";
