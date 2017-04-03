@@ -8,7 +8,7 @@ CPU::CPU(byte & main_memory): gfx(main_memory)
   
   srand(time(NULL));
 
-  DELAY = TIMER = 0;
+  T_DELAY = T_SOUND = 0;
 
   SP = I = 0;
 
@@ -60,10 +60,10 @@ void CPU::step()
                 break;
   }
 
-  if(DELAY)
-    --DELAY;
-  if(TIMER)
-    --TIMER;
+  if(T_DELAY)
+    --T_DELAY;
+  if(T_SOUND)
+    --T_SOUND;
 
 }
 
@@ -145,7 +145,7 @@ void CPU::display_state()
   for(int i = 0; i < 16; ++i)
     printf("V%X: %02X\n", i, V[i]);
 
-  printf("I: %04X\nPC: %04X\nDELAY: %04X\nTIMER: %04X\n\n", I, PC, DELAY, TIMER);
+  printf("I: %04X\nPC: %04X\nT_DELAY: %04X\nT_SOUND: %04X\n\n", I, PC, T_DELAY, T_SOUND);
 
   printf("Stack contents: \n");
 
@@ -184,8 +184,6 @@ void CPU::op_1nnn()
 {
   PC = *(memory + PC) << 8 | *(memory + PC + 1);
   PC &= 0x0FFF;
-
-  //PC = bytes_to_word(*(memory + PC), *(memory + PC + 1)) & 0xF0;
 }
 void CPU::op_2nnn()
 {
@@ -195,7 +193,6 @@ void CPU::op_2nnn()
 
   PC = *(memory + PC) << 8| (byte) *(memory + PC + 1);
   PC &= 0x0FFF;
- // PC = bytes_to_word(*(memory + PC), *(memory + PC + 1)) & 0xF0;
 }
 void CPU::op_3xkk()
 {
@@ -391,22 +388,28 @@ void CPU::op_ExA1()
 }
 void CPU::op_Fx07()
 {
-  V[*(memory + PC) & 0x0F] = DELAY;
+  V[*(memory + PC) & 0x0F] = T_DELAY;
   PC += 2;
 }
 void CPU::op_Fx0A()
 {
   //TODO INPUT
+  //
+  //
+  
+  // fake input b/c why not
+  V[*(memory + PC) & 0xF0] = 0x09;
+
   PC += 2;
 }
 void CPU::op_Fx15()
 {
-  DELAY = V[*(memory + PC) & 0x0F];
+  T_DELAY = V[*(memory + PC) & 0x0F];
   PC += 2;
 }
 void CPU::op_Fx18()
 {
-  TIMER = V[*(memory + PC) & 0x0F];
+  T_SOUND = V[*(memory + PC) & 0x0F];
   PC += 2;
 }
 void CPU::op_Fx1E()
@@ -422,8 +425,7 @@ void CPU::op_Fx29()
 void CPU::op_Fx33()
 {
   //TODO Refresh on binary-coded decimal
-  int i;
-  cin >> i;
+  cout << "Opcode Fx33 unsupported, prepare to crash and burn..." << endl;
 }
 void CPU::op_Fx55()
 {
@@ -434,14 +436,6 @@ void CPU::op_Fx55()
 
   PC += 2;
 
-  /*
-  byte * offset = &*(memory + I);
-
-  for(int i = 0; i < limit; ++i)
-  {
-    *(offset + i) = *(V + i);
-  }
-  */
 }
 void CPU::op_Fx65()
 {

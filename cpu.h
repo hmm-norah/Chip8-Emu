@@ -15,7 +15,7 @@ class CPU
 
   private:
 
-    //byte V0, V1, V2, V3, V4, V5, V6, V7, V8, V9, VA, VB, VC, VD, VE, VF, 
+    //V0, V1, V2, V3, V4, V5, V6, V7, V8, V9, VA, VB, VC, VD, VE, VF, 
     byte V[16], SP;
 
     uint16_t pop();
@@ -36,7 +36,7 @@ class CPU
 		void op_Fx15(); void op_Fx18(); void op_Fx1E(); void op_Fx29();
 		void op_Fx33(); void op_Fx55(); void op_Fx65();
 
-    uint16_t I, PC, DELAY, TIMER;
+    uint16_t I, PC, T_DELAY, T_SOUND;
 
     uint16_t stack[16];
 
