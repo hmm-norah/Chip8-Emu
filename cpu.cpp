@@ -8,6 +8,8 @@ CPU::CPU(byte & main_memory): gfx(main_memory)
   
   srand(time(NULL));
 
+  DELAY = TIMER = 0;
+
   SP = I = 0;
 
   PC = 0x200;
@@ -21,7 +23,7 @@ CPU::~CPU()
 
 void CPU::step()
 {
-//  display_state();
+  //display_state();
   switch(*(memory + PC) & 0xF0)
   {
     case(0x00): ops_0();
@@ -57,6 +59,11 @@ void CPU::step()
     case(0xF0): ops_F();
                 break;
   }
+
+  if(DELAY)
+    --DELAY;
+  if(TIMER)
+    --TIMER;
 
 }
 
@@ -206,7 +213,7 @@ void CPU::op_4xkk()
 }
 void CPU::op_5xy0()
 {
-  if(V[*(memory + PC) & 0x0F] == V[*(memory + PC + 1) & 0x00])
+  if(V[*(memory + PC) & 0x0F] == V[*(memory + PC + 1) & 0xF0 >> 4])
     PC += 2;
 }
 void CPU::op_6xkk()
@@ -221,27 +228,27 @@ void CPU::op_7xkk()
 }
 void CPU::op_8xy0()
 {
-  V[*(memory + PC) & 0x0F] = V[*(memory + PC + 1) & 0x0F];
+  V[*(memory + PC) & 0x0F] = V[*(memory + PC + 1) & 0xF0 >> 4];
   PC += 2;
 }
 void CPU::op_8xy1()
 {
-  V[*(memory + PC) & 0x0F] |= V[*(memory + PC + 1) & 0x0F];
+  V[*(memory + PC) & 0x0F] |= V[*(memory + PC + 1) & 0xF0 >> 4];
   PC += 2;
 }
 void CPU::op_8xy2()
 {
-  V[*(memory + PC) & 0x0F] &= V[*(memory + PC + 1) & 0x0F];
+  V[*(memory + PC) & 0x0F] &= V[*(memory + PC + 1) & 0xF0 >> 4];
   PC += 2;
 }
 void CPU::op_8xy3()
 {
-  V[*(memory + PC) & 0x0F] ^= V[*(memory + PC + 1) & 0x0F];
+  V[*(memory + PC) & 0x0F] ^= V[*(memory + PC + 1) & 0xF0 >> 4];
   PC += 2;
 }
 void CPU::op_8xy4()
 {
-  if( (V[*(memory + PC) & 0x0F ] ) + (V[(*(memory + PC + 1) & 0x0F)])  > 0xFF)
+  if( (V[*(memory + PC) & 0x0F ] ) + (V[(*(memory + PC + 1) & 0xF0) >> 4])  > 0xFF)
     V[0x0F] = 0x01;
   else
     V[0x0F] = 0x00;
@@ -251,7 +258,7 @@ void CPU::op_8xy5()
 {
   byte * x = &V[*(memory + PC) & 0x0F];
 
-  byte * y = &V[*(memory + PC + 1) & 0x0F];
+  byte * y = &V[*(memory + PC + 1) & 0xF0 >> 4];
 
   (x > y) ? V[0x0F] = 1 : V[0x0F] = 0;
 
@@ -261,7 +268,7 @@ void CPU::op_8xy5()
 }
 void CPU::op_8xy6()
 {
-  byte lsb = V[*(memory + PC) & 0x0F];
+  byte lsb = V[*(memory + PC) & 0xF0];
   byte * x = &V[*(memory + PC) & 0xF0];
 
   lsb &= 0xFF - lsb + 0x01; 
@@ -279,7 +286,7 @@ void CPU::op_8xy7()
 {
   byte * x = &V[*(memory + PC) & 0x0F];
 
-  byte * y = &V[*(memory + PC + 1) >> 4 << 4];
+  byte * y = &V[*(memory + PC + 1) & 0xF0 >> 4];
 
   (y > x) ? V[0x0F] = 1 : V[0x0F] = 0;
 
@@ -309,7 +316,7 @@ void CPU::op_8xyE()
 }
 void CPU::op_9xy0()
 {
-  if(V[*(memory + PC) & 0x0F] != V[*(memory + PC + 1) >> 4 << 4])
+  if(V[*(memory + PC) & 0x0F] != V[*(memory + PC + 1) & 0xF0 >> 4])
     PC += 2;
 
 }
@@ -324,7 +331,7 @@ void CPU::op_Annn()
 }
 void CPU::op_Bnnn()
 {
-  PC = ((*(memory + PC) << 8 | (*(memory + PC + 1))) & 0xF0 >> 4) + V[0];
+  PC = ((*(memory + PC) << 8 | (*(memory + PC + 1))) & 0x0FFF) + V[0];
 }
 void CPU::op_Cxkk()
 {
@@ -348,25 +355,21 @@ void CPU::op_Dxyn()
 		the opposite side of the screen. See instruction 8xy3 for more information on XOR, and section 2.4,
 		Display, for more information on the Chip-8 screen and sprites.
 	*/ 
-  
+
   byte x_coord = V[memory[PC] & 0x0F];
-  byte y_coord = V[memory[(PC + 1)] & 0xF0];
+  byte y_coord = V[memory[(PC + 1)] & 0xF0 >> 4];
 
-  byte nth = memory[(PC + 1) & 0x0F];
+  byte nth = memory[(PC + 1)] & 0x0F;
 
-  byte pixel;
+  byte sprite_layer;
 
-  int collision;
 
 	for(int i = 0; i < nth; ++i)
   {
-    pixel = memory[I + i];
-    collision = gfx.put(x_coord + (WIDTH * i), y_coord + (HEIGHT * i), pixel);
+    sprite_layer = memory[I + i];
 
-    if(collision)
-      V[0x0f] = collision;
+    gfx.put(x_coord, y_coord + i, sprite_layer, V[0x0F]);
   }
-
 
   gfx.draw();
 
@@ -374,6 +377,8 @@ void CPU::op_Dxyn()
   
   PC += 2;
 }
+
+
 void CPU::op_Ex9E()
 {
   //TODO INPUT
@@ -382,7 +387,7 @@ void CPU::op_Ex9E()
 void CPU::op_ExA1()
 {
   //TODO INPUT
-  PC += 2;
+  PC += 4;
 }
 void CPU::op_Fx07()
 {
@@ -425,9 +430,8 @@ void CPU::op_Fx55()
   int limit = (*(memory + PC) & 0x0F) + 1;
 
   for(int i = 0; i < limit; ++i)
-  {
     memory[I + i] = *(V + i);
-  }
+
   PC += 2;
 
   /*
@@ -444,8 +448,7 @@ void CPU::op_Fx65()
   int limit = (*(memory + PC) & 0x0F) + 1;
 
   for(int i = 0; i < limit; ++i)
-  {
     *(V + i) = memory[I + i];
-  }
+
    PC += 2;
 }

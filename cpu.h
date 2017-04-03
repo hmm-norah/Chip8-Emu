@@ -22,6 +22,8 @@ class CPU
     void push(uint16_t old_PC);
     void display_state();
 
+		void draw();
+
     void ops_0();   void ops_8();   void ops_E();   void ops_F();
 
 		void op_0nnn(); void op_00E0(); void op_00EE(); void op_1nnn();
@@ -38,6 +40,7 @@ class CPU
 
     uint16_t stack[16];
 
+    byte screen[WIDTH * HEIGHT];
     GFX gfx;
     byte * memory;
   

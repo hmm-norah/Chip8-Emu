@@ -29,10 +29,17 @@ void System::initialize(char * file)
 
   in.read((char *) start, file_size + 1);
 
+  for(int i = 0; i < 0x50; ++i)
+    memory[i] = builtin_font[i];
+
+  cout << "\n" << endl;
 }
 
 void System::run()
 {
   for(;;)
+  {
     cpu.step();
+    usleep(9000);
+  }
 }

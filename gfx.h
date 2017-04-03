@@ -8,7 +8,7 @@ class GFX
     ~GFX();
 
     void clear();
-    int put(byte x_coord, byte y_coord, byte sprite);
+    void put(byte x_coord, byte y_coord, byte sprite, byte & collision);
     void draw();
 
   private:

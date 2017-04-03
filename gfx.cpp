@@ -17,24 +17,40 @@ void GFX::clear()
     *(screen + i) = 0x00;
 }
 
-int GFX::put(byte x_coord, byte y_coord, byte nth)
+void GFX::put(byte x_coord, byte y_coord, byte sprite_layer, byte & collision)
 {
-  int offset = x_coord * y_coord;
-  int collision = 0;
 
-  for(int i = 7; i > -1; --i)
+/*
+		for (int yline = 0; yline < height; yline++)
+		{
+				pixel = memory[I + yline];
+				for(int xline = 0; xline < 8; xline++)
+				{
+						if((pixel & (0x80 >> xline)) != 0)
+						{
+								if(screen[(x + xline + ((y + yline) * 64))] == 1)
+								{
+										V[0xF] = 1;
+								}
+								screen[x + xline + ((y + yline) * 64)] ^= 1;
+						}
+				}
+		}
+
+*/
+	int b = 7;
+  for(int i = 0; i < 8; ++i)
   {
-    byte pixel = (nth & (1 << i)) >> i;
+    byte pixel = (sprite_layer & (1 << b)) >> b;
 
-    if(pixel && screen[offset + i])
+    if(collision == 0x00 && pixel && screen[x_coord + i + y_coord * WIDTH])
       collision = 1;
     
     if(pixel)
-      screen[offset + i] ^= pixel;
+      screen[x_coord + i + y_coord * WIDTH] ^= 1;
+
+		--b;
   }
-
-  return collision;
-
 
 }
 
@@ -47,7 +63,7 @@ void GFX::draw()
     else
       printf(" ");
 
-    if(i + 1 % WIDTH == 0)
+    if(i % WIDTH == 0)
       cout << "\n";
   }
 }
