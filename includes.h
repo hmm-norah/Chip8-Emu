@@ -7,6 +7,7 @@
 #include <fstream>
 #include <stdint.h>
 #include <iomanip>
+#include <SDL2/SDL.h>
 
 using namespace std;
 
@@ -17,5 +18,6 @@ typedef int cycles;
 #define WIDTH 64
 #define HEIGHT 32
 #define PIXELS WIDTH*HEIGHT
+
 
 #endif
