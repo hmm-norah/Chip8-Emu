@@ -1,9 +1,12 @@
 #include "gfx.h"
 
-GFX::GFX(byte & main_memory)
+GFX::GFX(byte & main_memory, SDL_Texture & tex, SDL_Renderer & ren)
 {
   memory = &main_memory;
 
+  texture = &tex;
+
+  renderer = & ren;
 
 }
 
@@ -37,13 +40,12 @@ void GFX::put(byte x_coord, byte y_coord, byte sprite_layer, byte & collision)
 void GFX::draw()
 {
   for(int i = 0; i < PIXELS; ++i)
-  {
-    if(*(screen + i) == 1)
-      printf("█");
-    else
-      printf(" ");
+    buffer[i] = (0x00FFFFFF * screen[i]) | 0xFF000000;
 
-    if(i % WIDTH == 0)
-      cout << "\n";
-  }
+  SDL_UpdateTexture(texture, NULL, buffer, WIDTH * 4);
+
+  SDL_RenderClear(renderer);
+  SDL_RenderCopy(renderer, texture, NULL, NULL);
+  SDL_RenderPresent(renderer);
+
 }

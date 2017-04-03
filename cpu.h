@@ -8,7 +8,7 @@
 class CPU
 {
   public:
-    CPU(byte & memory);
+    CPU(byte & memory, SDL_Texture & tex, SDL_Renderer & render);
     ~CPU();
 
     void step();

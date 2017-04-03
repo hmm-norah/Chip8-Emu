@@ -5,7 +5,7 @@
 class System
 {
   public:
-    System(char * file);
+    System(char * file, SDL_Texture & tex, SDL_Renderer & render);
     ~System();
 
     void run();
