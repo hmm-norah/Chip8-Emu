@@ -4,7 +4,7 @@
 class GFX
 {
   public:
-    GFX(byte & main_memory, SDL_Texture & tex, SDL_Renderer & ren);
+    GFX(byte & main_memory);
     ~GFX();
 
     void clear();
@@ -17,7 +17,9 @@ class GFX
     uint32_t buffer[WIDTH * HEIGHT];
 
     byte * memory;
-    SDL_Texture * texture;
+
+    SDL_Window * window;
+    SDL_Texture * frame;
     SDL_Renderer * renderer; 
   
 };

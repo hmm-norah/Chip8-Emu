@@ -20,7 +20,7 @@ byte builtin_font[0x50] =
     0xF0, 0x80, 0xF0, 0x80, 0x80
 };
 
-System::System(char * file, SDL_Texture & tex, SDL_Renderer & render): cpu(*memory, tex, render)
+System::System(char * file) : cpu(*memory)
 {
   initialize(file);
 }
