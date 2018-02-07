@@ -4,6 +4,7 @@ GFX::GFX(byte & main_memory)
 {
   memory = &main_memory;
   
+  /*
   window = NULL;
             
   if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -27,6 +28,7 @@ GFX::GFX(byte & main_memory)
       SDL_PIXELFORMAT_ARGB8888, 
       SDL_TEXTUREACCESS_STREAMING, 
       WIDTH, HEIGHT);
+      */
 }
 
 GFX::~GFX()
@@ -41,6 +43,7 @@ void GFX::clear()
 
 void GFX::put(byte x_coord, byte y_coord, byte sprite_layer, byte & collision)
 {
+  /*
 	int b = 7;
   for(int i = 0; i < 8; ++i)
   {
@@ -54,17 +57,21 @@ void GFX::put(byte x_coord, byte y_coord, byte sprite_layer, byte & collision)
 
 		--b;
   }
+  */
 }
 
 void GFX::draw()
 {
+  /*
   for(int i = 0; i < PIXELS; ++i)
     buffer[i] = (0x00FFFFFF * screen[i]) | 0xFF000000;
 
   SDL_UpdateTexture(frame, NULL, buffer, WIDTH * 4);
 
+
   SDL_RenderClear(renderer);
   SDL_RenderCopy(renderer, frame, NULL, NULL);
   SDL_RenderPresent(renderer);
 
+  */
 }

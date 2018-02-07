@@ -1,12 +1,11 @@
 .PHONY: clean
 
-CFLAGS= -ansi -pedantic -O0 -Wall -g
-SDL_FLAGS = -I/usr/local/include/SDL2 -L/usr/local/lib -lSDL2
+CFLAGS= -pedantic -O0 -Wall -g
 
 all: chip8
 
 chip8: main.o system.o cpu.o gfx.o
-		g++ -o a.out $(CFLAGS) main.o cpu.o system.o gfx.o $(SDL_FLAGS)
+		g++ -o a.out $(CFLAGS) main.o cpu.o system.o gfx.o
 
 main.o: main.cpp
 		g++ -c -o main.o $(CFLAGS) main.cpp 

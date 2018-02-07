@@ -13,7 +13,5 @@ int main (int argc, char ** argv)
   System ch8(test_rom);
   ch8.run();
 
-  SDL_Delay(6000);
-
   return 0;
 }

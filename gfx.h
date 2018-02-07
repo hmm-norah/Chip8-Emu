@@ -18,8 +18,10 @@ class GFX
 
     byte * memory;
 
+    /*
     SDL_Window * window;
     SDL_Texture * frame;
     SDL_Renderer * renderer; 
+    */
   
 };

@@ -7,7 +7,6 @@
 #include <fstream>
 #include <stdint.h>
 #include <iomanip>
-#include <SDL2/SDL.h>
 
 using namespace std;
 
