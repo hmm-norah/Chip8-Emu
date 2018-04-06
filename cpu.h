@@ -41,7 +41,6 @@ class CPU
     uint16_t stack[16];
 
     byte screen[WIDTH * HEIGHT];
-    GFX gfx;
     byte * memory;
   
 };
