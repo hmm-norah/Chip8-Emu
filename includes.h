@@ -7,6 +7,7 @@
 #include <fstream>
 #include <stdint.h>
 #include <iomanip>
+#include <ncurses.h>
 
 using namespace std;
 

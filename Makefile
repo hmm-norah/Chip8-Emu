@@ -1,11 +1,12 @@
 .PHONY: clean
 
-CFLAGS= -pedantic -O0 -Wall -g
+CFLAGS= -pedantic -O0 -Wall -g 
+LNCURSES= -lncurses
 
 all: chip8
 
 chip8: main.o system.o cpu.o gfx.o
-		g++ -o a.out $(CFLAGS) main.o cpu.o system.o gfx.o
+		g++ -o a.out $(CFLAGS) $(LNCURSES) main.o cpu.o system.o gfx.o
 
 main.o: main.cpp
 		g++ -c -o main.o $(CFLAGS) main.cpp 
