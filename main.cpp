@@ -1,22 +1,28 @@
 #include "system.h"
 
-void key_test();
+char key_test();
 
 int main (int argc, char ** argv)
 {
   initscr();
   raw();
   keypad(stdscr, TRUE);
+  nodelay(stdscr, TRUE);
+  scrollok(stdscr,TRUE);
   noecho();
+  curs_set(FALSE);
 
   /* Eventually, command line argument for ch8 rom to load... hardcoded to tetris for now
   if(argc != 2)
     return 0;
   */
+  while(key_test() != '0')
+  {
+    refresh();
+    usleep(100000);
 
-  key_test();
+  }
 
-  refresh();
   getch();
   endwin();
 
@@ -29,7 +35,7 @@ int main (int argc, char ** argv)
   return 0;
 }
 
-void key_test()
+char key_test()
 {
   int command;
   printw("Press arrow key for recognition\n");
@@ -37,13 +43,17 @@ void key_test()
   command = getch();
 
   if(command == KEY_LEFT)
-    printw("Left arrow");
+    printw("Left arrow\n");
   else if(command == KEY_UP)
-    printw("Up arrow");
+    printw("Up arrow\n");
   else if(command == KEY_RIGHT)
-    printw("Right arrow");
+    printw("Right arrow\n");
   else if(command == KEY_DOWN)
-    printw("Down arrow");
+    printw("Down arrow\n");
+  else if(command == ERR)
+    printw("No input");
   else
-    printw("Not recognized");
+    addch(command);
+
+  return command;
 }

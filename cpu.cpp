@@ -376,57 +376,74 @@ void CPU::op_Dxyn()
 }
 
 
+// skip next instruction if button is pressed
 void CPU::op_Ex9E()
 {
-  //TODO INPUT
-  PC += 2;
+  char input = getch();
+  if((*(memory + PC) & 0x0F) == input)
+    PC += 4;
+  else
+    PC += 2;
 }
+
+// skip next instruction if button is not pressed
 void CPU::op_ExA1()
 {
-  //TODO INPUT
-  PC += 4;
+  char input = getch();
+  if((*(memory + PC) & 0x0F) == input)
+    PC += 2;
+  else
+    PC += 4;
 }
 void CPU::op_Fx07()
 {
   V[*(memory + PC) & 0x0F] = T_DELAY;
   PC += 2;
 }
+
+//wait for button press, store into Vx
 void CPU::op_Fx0A()
 {
-  //TODO INPUT
-  //
-  //
+  char input;
 
-  // fake input b/c why not
-  V[*(memory + PC) & 0xF0] = 0x09;
+  //TODO don't burn up millions of CPU cycles on this... implement tick rate
+  while((input = getch()) == ERR);
+
+  V[*(memory + PC) & 0xF0] = input;
 
   PC += 2;
 }
+
 void CPU::op_Fx15()
 {
   T_DELAY = V[*(memory + PC) & 0x0F];
   PC += 2;
 }
+
 void CPU::op_Fx18()
 {
   T_SOUND = V[*(memory + PC) & 0x0F];
   PC += 2;
 }
+
 void CPU::op_Fx1E()
 {
   I += V[*(memory + PC) & 0x0F];
   PC += 2;
 }
+
 void CPU::op_Fx29()
 {
   //TODO GFX
   PC += 2;
 }
+
 void CPU::op_Fx33()
 {
   //TODO Refresh on binary-coded decimal
   cout << "Opcode Fx33 unsupported, prepare to crash and burn..." << endl;
 }
+
 void CPU::op_Fx55()
 {
   int limit = (*(memory + PC) & 0x0F) + 1;
@@ -437,6 +454,7 @@ void CPU::op_Fx55()
   PC += 2;
 
 }
+
 void CPU::op_Fx65()
 {
   int limit = (*(memory + PC) & 0x0F) + 1;
