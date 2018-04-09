@@ -404,10 +404,14 @@ void CPU::op_Fx07()
 //wait for button press, store into Vx
 void CPU::op_Fx0A()
 {
-  char input;
+  char input = '?';
 
-  //TODO don't burn up millions of CPU cycles on this... implement tick rate
-  while((input = getch()) == ERR);
+  nodelay(stdscr, FALSE);
+  while(!(input >= zero && input <= nine) && !(input >= a && input <= f))
+  {
+    input = getch();
+  }
+  nodelay(stdscr,TRUE);
 
   V[*(memory + PC) & 0xF0] = input;
 
